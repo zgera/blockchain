@@ -8,14 +8,14 @@ export class Block {
   previousHash: string;
   transactions: Transaction[];
   nonce: number = 0;
-  private _hash: string;
+  hash: string;
 
-  constructor(index: number, previousHash: string, transactions: Transaction[], timestamp = Date.now()) {
+  constructor(index: number, previousHash: string, transactions: Transaction[]) {
     this.index = index;
     this.previousHash = previousHash;
     this.transactions = transactions;
-    this.timestamp = timestamp;
-    this._hash = this.calculateHash(); // solo puede ser cambiado por minería
+    this.timestamp = Date.now()
+    this.hash = this.calculateHash(); // solo puede ser cambiado por minería
   }
 
   // Método privado: solo se puede calcular internamente
@@ -26,20 +26,22 @@ export class Block {
   }
 
   // Método público para exponer el hash calculado
-  get hash(): string {
-    return this._hash;
+  get getHash(): string {
+    return this.hash;
   }
 
   // Ejecuta la minería: encuentra un hash válido que cumpla con cierta dificultad
   mine(difficulty: number) {
-    while (!this._hash.startsWith('0'.repeat(difficulty))) {
+    while (!this.hash.startsWith('0'.repeat(difficulty))) {
       this.nonce++;
-      this._hash = this.calculateHash();
+      this.hash = this.calculateHash();
+      console.log("Minando ⛏👷‍♂️. Intento: ", this.nonce)
     }
+    console.log("Mineria finalizada ✅")
   }
 
   // Verifica que el hash aún coincida con los datos del bloque
   hasValidHash(): boolean {
-    return this._hash === this.calculateHash();
+    return this.hash === this.calculateHash();
   }
 }

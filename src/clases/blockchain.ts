@@ -2,11 +2,15 @@ import { Block } from './block';
 import { Transaction } from './transaction';
 
 export class Blockchain {
-  chain: Block[] = [];
-  mempool: Transaction[] = [];
-  difficulty = 2;
+  chain: Block[]
+  mempool: Transaction[]
+  difficulty: number
 
-  constructor() {
+  constructor(difficulty: number) {
+    this.chain = []
+    this.mempool = []
+    this.difficulty = difficulty
+
     const genesis = new Block(0, '0', []);
     this.chain.push(genesis);
   }
@@ -19,15 +23,25 @@ export class Blockchain {
   addTransaction(tx: Transaction) {
     if (tx.isValid()) {
       this.mempool.push(tx);
+      console.log("Transaccion agregada 📋✅")
+      return 
     }
+    console.log("Transaccion invalida 📋❌")
   }
 
   // Extrae transacciones del mempool, crea bloque y lo mina
-  minePendingTransactions(): Block {
-    const block = new Block(this.chain.length, this.getLatestBlock().hash, this.mempool);
+  minePendingTransactions(): Block | void {
+    if (this.mempool.length === 0){
+      console.log("No existen transacciones para agregar al bloque ❌")
+      return
+    }
+    const block = new Block(this.chain.length, this.getLatestBlock().getHash, this.mempool);
     block.mine(this.difficulty);
     this.chain.push(block);
     this.mempool = [];
+
+    console.log("Bloque agregado ❎⬜")
+
     return block;
   }
 
@@ -43,10 +57,16 @@ export class Blockchain {
     for (let i = 1; i < chain.length; i++) {
       const current = chain[i];
       const previous = chain[i - 1];
-
-      if (!current.hasValidHash()) return false;
-      if (current.previousHash !== previous.hash) return false;
+      if (!current.hasValidHash()) {
+        console.log("Cadena invalida ⛓❌")
+        return false
+      };
+      if (current.previousHash !== previous.getHash) {
+        console.log("Cadena invalida ⛓❌")
+        return false
+      };
     }
+    console.log("Cadena valida ⛓✅")
     return true;
   }
 }
